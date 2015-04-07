@@ -8,6 +8,9 @@ export TARGET = windows
 ifeq ($(TARGET),windows)
 	LIBS += -lws2_32
 endif
+ifeq (&(TARGET),linux)
+	LIBS += -lpthread
+endif
 
 Main: $(OBJS)
 	$(MAKE) -C $(LOC)
