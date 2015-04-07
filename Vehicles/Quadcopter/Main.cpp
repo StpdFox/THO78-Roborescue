@@ -4,7 +4,6 @@
 #include "MAVLinkExchanger.h"
 #include <iostream>
 #include <thread>
-
 int main() 
 {
 	SerialPort serialPort("COM4");
@@ -16,6 +15,6 @@ int main()
 	quadcopterThread.detach();
 	while (1)
 	{
-		//Doe dingen
+
 	}
 }

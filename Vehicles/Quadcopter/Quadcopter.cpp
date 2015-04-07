@@ -59,8 +59,10 @@ void Quadcopter::changeFlightSpeed(int)
 {
 }
 
-void Quadcopter::changeHeading(int)
+void Quadcopter::changeHeading(int value)
 {
+	mavlink_msg_rc_channels_override_pack(255,1,&message,1,1,UINT16_MAX, UINT16_MAX, UINT16_MAX,MEANVALUELEFTRIGHT+value,UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX);
+	exchanger.enqueueMessage(message);
 }
 
 void Quadcopter::changeAltitude(int altitude)
@@ -79,11 +81,6 @@ void Quadcopter::changeMode(FlightMode mode)
 {
 	mavlink_msg_set_mode_pack(255, 0, &message, 1, 1, static_cast<uint32_t>(mode));
 	exchanger.enqueueMessage(message);
-}
-
-Quadcopter::FlightMode Quadcopter::getMode()
-{
-	return flightMode;
 }
 
 void Quadcopter::loop()
@@ -117,6 +114,7 @@ void Quadcopter::handleIncomingMessage(ExtendedMAVLinkMessage incomingMessage)
 		yaw = mavlink_msg_attitude_get_yaw(&incomingMessage);
 		break;
 	}
+	notifyListeners();
 }
 
 void Quadcopter::calculateRCChannels()
@@ -193,32 +191,12 @@ int Quadcopter::getHeading() const
 	return heading;
 }
 
-void Quadcopter::setTargetYaw(float yaw)
-{
-	targetYaw = yaw;
-}
-
-void Quadcopter::setTargetRoll(float roll)
-{
-	targetRoll = roll;
-}
-
-void Quadcopter::setTargetPitch(float pitch)
-{
-	targetPitch = pitch;
-}
-
-void Quadcopter::setTargetAltitude(float altitude)
-{
-	targetAltitude = altitude;
-}
-
-void Quadcopter::setTargetHeading(int heading)
-{
-	targetHeading = heading;
-}
-
 bool Quadcopter::isArmed() const
 {
 	return armed;
+}
+
+Quadcopter::FlightMode Quadcopter::getMode() const
+{
+	return flightMode;
 }

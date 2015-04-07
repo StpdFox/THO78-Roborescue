@@ -1,11 +1,12 @@
 #ifndef _QUADCOPTER_H
 #define _QUADCOPTER_H
 #include "ExtendedMAVLinkMessage.h"
+#include "Subject.h"
 #include <iostream>
 
 class MAVLinkExchanger;
 
-class Quadcopter
+class Quadcopter : public Subject
 {
 public:
 	enum class FlightMode
@@ -28,15 +29,16 @@ public:
 	void liftOff(int);
 	void arm();
 	void disarm();
+
 	/**
-	* moveLeft allows the quadcopter to move to it's left. This means the left side of the quadcopter, not relative to the orientation.
+	* moveLeft allows the quadcopter to move to its left. This means the left side of the quadcopter, not relative to the orientation.
 	* @param value is a value between -400 and 400. A value between -200 and 200 is suggested. Positive values mean left, negative values mean right.
 	* @warning If you put this value beyond the reccomended values (-200 and 200), the quadcopter will bank dangerously far, and will be unable to maintain altitude. This will most likely result in the quadcopter diving into the ground.
 	*/
 	void moveLeft(signed int value);
 
 	/**
-	* moveRight allows the quadcopter to move to it's right. This means the right side of the quadcopter, not relative to the orientation.
+	* moveRight allows the quadcopter to move to its right. This means the right side of the quadcopter, not relative to the orientation.
 	* @param value is a value between -400 and 400. A value between -200 and 200 is suggested. Positive values mean right, negative values mean left.
 	* @warning If you put this value beyond the reccomended values (-200 and 200), the quadcopter will bank dangerously far, and will be unable to maintain altitude. This will most likely result in the quadcopter diving into the ground.
 	*/
@@ -46,11 +48,16 @@ public:
 	void stop();
 	void land();
 	void changeFlightSpeed(int);
+
+	/**
+	* changeHeading allows the quadcopter to change its heading.
+	* @param value is a value between -400 and 400. A value between -200 and 200 is suggested. Positive values means the quadcopter will start turning to the right, negative values means the quadcopter will start turning to the left.
+	* @warning If you put this value beyond the recommended values (-200 and 200), the quadcopter will start turning dangerously fast, and will be unable to stabilize quickly.
+	*/
 	void changeHeading(int);
 	void changeAltitude(int);
 	void shutdown();
 	void changeMode(FlightMode);
-	FlightMode getMode();
 	friend std::ostream& operator<<(std::ostream& stream, const FlightMode& mode);
 	void loop();
 
@@ -60,11 +67,8 @@ public:
 	float getAltitude() const;
 	int getHeading() const;
 	bool isArmed() const;
-	void setTargetYaw(float yaw);
-	void setTargetRoll(float roll);
-	void setTargetPitch(float pitch);
-	void setTargetAltitude(float altitude);
-	void setTargetHeading(int heading);
+	FlightMode getMode() const;
+
 private:
 	MAVLinkExchanger& exchanger;
 	ExtendedMAVLinkMessage message;
@@ -77,12 +81,6 @@ private:
 	float pitch;
 	float altitude;
 	int heading;
-
-	float targetYaw;
-	float targetRoll;
-	float targetPitch;
-	float targetAltitude;
-	int targetHeading;
 
 	void handleIncomingMessage(ExtendedMAVLinkMessage incomingMessage);
 	void calculateRCChannels();
