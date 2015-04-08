@@ -31,6 +31,23 @@ int MAVLinkExchanger::receiveQueueSize()
 	return receiveQueue.size();
 }
 
+void MAVLinkExchanger::loop()
+{
+	ExtendedMAVLinkMessage message;
+	while (1)
+	{
+		if (sendQueue.size())
+		{
+			sendMessage(sendQueue.top());
+			sendQueue.pop();
+		}
+		if (receiveMessage(message))
+		{
+			receiveQueue.push(message);
+		}
+	}
+}
+
 ExtendedMAVLinkMessage MAVLinkExchanger::dequeueMessage()
 {
 	auto message = peek();
@@ -38,34 +55,21 @@ ExtendedMAVLinkMessage MAVLinkExchanger::dequeueMessage()
 	return message;
 }
 
-void MAVLinkExchanger::loop()
+void MAVLinkExchanger::sendMessage(const ExtendedMAVLinkMessage& message)
 {
-	while (1)
-	{
-		receiveMessage();
-		if (sendQueue.size())
-		{
-			sendMessage();
-		}
-	}
-}
-
-void MAVLinkExchanger::sendMessage()
-{
-	unsigned char buffer[MAVLINK_NUM_NON_PAYLOAD_BYTES + sendQueue.top().len];
-	int len = mavlink_msg_to_send_buffer(buffer, &sendQueue.top());
+	unsigned char buffer[MAVLINK_NUM_NON_PAYLOAD_BYTES + message.len];
+	int len = mavlink_msg_to_send_buffer(buffer, &message);
 	serialPort.writeData(buffer, len);
-	sendQueue.pop();
 }
 
-void MAVLinkExchanger::receiveMessage()
+bool MAVLinkExchanger::receiveMessage(ExtendedMAVLinkMessage& message)
 {
 	mavlink_status_t status;
 	unsigned char c;
-	do
+	serialPort.readData(&c, 1);
+	if(mavlink_parse_char(MAVLINK_COMM_0, c, &message, &status))
 	{
-		serialPort.readData(&c, 1);
+		return true;
 	}
-	while (mavlink_parse_char(MAVLINK_COMM_0, c, &message, &status) == 0);
-	receiveQueue.push(message);
+	return false;
 }

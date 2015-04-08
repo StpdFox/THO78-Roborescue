@@ -19,9 +19,8 @@ private:
 	SerialPort& serialPort;
 	std::priority_queue<ExtendedMAVLinkMessage> sendQueue;
 	std::priority_queue<ExtendedMAVLinkMessage> receiveQueue;
-	ExtendedMAVLinkMessage message;
 
-	void sendMessage();
-	void receiveMessage();
+	void sendMessage(const ExtendedMAVLinkMessage& message);
+	bool receiveMessage(ExtendedMAVLinkMessage& message);
 };
 #endif

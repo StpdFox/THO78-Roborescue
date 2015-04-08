@@ -30,10 +30,16 @@ SerialPort::~SerialPort()
 
 bool SerialPort::writeData(unsigned char* data, int nrOfBytes)
 {
-	return serialDevice->writeData(data, nrOfBytes);
+	rwMutex.lock();
+	auto result = serialDevice->writeData(data, nrOfBytes);
+	rwMutex.unlock();
+	return result;
 }
 
 int SerialPort::readData(unsigned char* buffer, int nrOfBytes)
 {
-	return serialDevice->readData(buffer, nrOfBytes);
+	rwMutex.lock();
+	auto result = serialDevice->readData(buffer, nrOfBytes);
+	rwMutex.unlock();
+	return result;
 }

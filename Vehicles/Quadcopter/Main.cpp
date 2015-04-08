@@ -4,17 +4,37 @@
 #include "MAVLinkExchanger.h"
 #include <iostream>
 #include <thread>
+#include <list>
+#include <conio.h>
+
+SerialPort serialPort("COM4");
+MAVLinkExchanger exchanger{ serialPort };
+Quadcopter quadcopter{ exchanger };
+void inputs();
+
 int main() 
 {
-	SerialPort serialPort("COM4");
-	MAVLinkExchanger exchanger{ serialPort };
-	Quadcopter quadcopter(exchanger);
-	std::thread exchangerThread{ &MAVLinkExchanger::loop, &exchanger };
+	std::thread exchangeThread{ &MAVLinkExchanger::loop, &exchanger };
+	std::thread inputThread{ inputs };
 	std::thread quadcopterThread{ &Quadcopter::loop, &quadcopter };
-	exchangerThread.detach();
-	quadcopterThread.detach();
+
+	inputThread.detach();
+	exchangeThread.detach();
+	quadcopterThread.join();
+}
+
+void inputs()
+{
 	while (1)
 	{
-
+		switch (_getch())
+		{
+		case 'a':
+			quadcopter.arm();
+			break;
+		case 'd':
+			quadcopter.disarm();
+			break;
+		}
 	}
 }

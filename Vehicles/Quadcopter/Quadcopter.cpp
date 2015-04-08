@@ -113,6 +113,15 @@ void Quadcopter::handleIncomingMessage(ExtendedMAVLinkMessage incomingMessage)
 		pitch = mavlink_msg_attitude_get_pitch(&incomingMessage);
 		yaw = mavlink_msg_attitude_get_yaw(&incomingMessage);
 		break;
+	case MAVLINK_MSG_ID_SYS_STATUS:
+		std::cout << "Received SYS-STATUS" << std::endl;
+		break;
+	case MAVLINK_MSG_ID_STATUSTEXT:
+		char text[50];
+		auto len = mavlink_msg_statustext_get_text(&incomingMessage, text);
+		text[49] = '/0';
+		std::cout << "Status: " << text << std::endl;
+		break;
 	}
 	notifyListeners();
 }

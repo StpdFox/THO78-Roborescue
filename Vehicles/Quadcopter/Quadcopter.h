@@ -9,7 +9,7 @@ class MAVLinkExchanger;
 class Quadcopter : public Subject
 {
 public:
-	enum class FlightMode
+	enum class FlightMode : char
 	{
 		STABILIZE = 0,
 		ACRO = 1,

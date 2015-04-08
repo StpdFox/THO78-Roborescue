@@ -1,6 +1,7 @@
 #ifndef _SERIALPORT_H
 #define _SERIALPORT_H
 #include <string>
+#include <mutex>
 class Serial;
 
 class SerialPort
@@ -13,5 +14,6 @@ public:
 	int readData(unsigned char* buffer, int nrOfBytes);
 private:
 	Serial* serialDevice;
+	std::mutex rwMutex;
 };
 #endif
